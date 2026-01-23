@@ -1,29 +1,8 @@
-# IMPulse Helm Chart
+# IMPulse
 
 ## Links:
 
-- GitHub: https://github.com/eslupmi/impulse
+- Site: https://impulse.bot
 - Documentation: https://docs.impulse.bot
+- GitHub: https://github.com/eslupmi/impulse
 
-## Add Repo
-
-```bash
-helm repo add eslupmi https://eslupmi.github.io/helm-charts/packages
-```
-
-## Installing the Chart
-
-To install the chart with the release name `impulse`:
-
-```bash
-helm repo update
-helm install impulse eslupmi/impulse
-```
-
-## Uninstalling the Chart
-
-To uninstall/delete the my-release deployment:
-
-```bash
-helm delete impulse
-```
