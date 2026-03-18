@@ -2,8 +2,8 @@ apiVersion: v2
 name: impulse
 description: Community Helm chart for IMPulse
 type: application
-version: "v1.0.7"
-appVersion: "v3.3.0"
+version: "v1.0.8"
+appVersion: "v3.4.1"
 icon: https://raw.githubusercontent.com/eslupmi/impulse/refs/heads/develop/logo.svg
 kubeVersion: ">=1.12.0-0"
 keywords:
@@ -21,7 +21,7 @@ maintainers:
 annotations:
   artifacthub.io/images: |
     - name: impulse
-      image: ghcr.io/eslupmi/impulse:v3.3.0
+      image: ghcr.io/eslupmi/impulse:v3.4.1
   artifacthub.io/links: |
     - name: Site
       url: https://impulse.bot
