@@ -4,6 +4,42 @@ entries:
   - annotations:
       artifacthub.io/images: |
         - name: impulse
+          image: ghcr.io/eslupmi/impulse:v3.6.1
+      artifacthub.io/links: |
+        - name: Site
+          url: https://impulse.bot
+        - name: Documentation
+          url: https://docs.impulse.bot
+        - name: Source Code
+          url: https://github.com/eslupmi/impulse
+      artifacthub.io/repositoryID: 8463be1d-2ded-4e14-b15c-2be5820ff537
+    apiVersion: v2
+    appVersion: v3.6.1
+    created: "2026-07-16T16:52:51.60882278Z"
+    description: Community Helm chart for IMPulse
+    digest: 7e1e9c3bb47f26b0a7063e19e578c1d9b08a5ed91fa7a2eaec70eb98403c86a8
+    home: https://artifacthub.io/packages/helm/impulse/impulse
+    icon: https://raw.githubusercontent.com/eslupmi/impulse/refs/heads/develop/logo.svg
+    keywords:
+    - incident-management
+    - alerting
+    - slack
+    - mattermost
+    - telegram
+    kubeVersion: '>=1.12.0-0'
+    maintainers:
+    - email: artyom.vershinin@icloud.com
+      name: Artem Vershinin
+    name: impulse
+    sources:
+    - https://github.com/eslupmi/impulse
+    type: application
+    urls:
+    - https://github.com/eslupmi-community/helm-charts/releases/download/impulse-v1.0.12/impulse-v1.0.12.tgz
+    version: v1.0.12
+  - annotations:
+      artifacthub.io/images: |
+        - name: impulse
           image: ghcr.io/eslupmi/impulse:v3.6.0
       artifacthub.io/links: |
         - name: Site
@@ -433,4 +469,4 @@ entries:
     urls:
     - https://eslupmi.github.io/helm-charts/packages/impulse-v1.0.0.tgz
     version: v1.0.0
-generated: "2026-06-29T08:50:50.966084369Z"
+generated: "2026-07-16T16:52:51.608927145Z"
