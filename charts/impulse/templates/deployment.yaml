@@ -69,13 +69,13 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /queue
+              path: /livez
               port: http
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /queue
+              path: /readyz
               port: http
             initialDelaySeconds: 5
             periodSeconds: 5
