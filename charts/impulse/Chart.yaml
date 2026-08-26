@@ -2,7 +2,7 @@ apiVersion: v2
 name: impulse
 description: Community Helm chart for IMPulse
 type: application
-version: "v1.0.15"
+version: "v1.0.16"
 appVersion: "v3.7.0"
 icon: https://raw.githubusercontent.com/eslupmi/impulse/refs/heads/develop/logo.svg
 kubeVersion: ">=1.12.0-0"
