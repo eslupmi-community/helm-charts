@@ -6,9 +6,9 @@ metadata:
     {{- include "impulse.labels" . | nindent 4 }}
 data:
   impulse.yml: |
-    {{- $config := .Values.impulseConfig -}}
+    {{- $config := deepCopy .Values.impulseConfig -}}
     {{- if or .Values.templates.header .Values.templates.body .Values.templates.status_icons -}}
-    {{- $_ := set $config.messenger "template_files" (dict) -}}
+    {{- $_ := set $config.messenger "template_files" (default dict $config.messenger.template_files) -}}
     {{- if .Values.templates.header -}}
     {{- $_ := set $config.messenger.template_files "header" "/config/header.j2" -}}
     {{- end -}}
@@ -17,6 +17,17 @@ data:
     {{- end -}}
     {{- if .Values.templates.status_icons -}}
     {{- $_ := set $config.messenger.template_files "status_icons" "/config/status_icons.j2" -}}
+    {{- end -}}
+    {{- end -}}
+    {{- if or .Values.templates.jiraSummary .Values.templates.jiraDescription -}}
+    {{- if $config.task_management -}}
+    {{- $_ := set $config.task_management "template_files" (default dict $config.task_management.template_files) -}}
+    {{- if .Values.templates.jiraSummary -}}
+    {{- $_ := set $config.task_management.template_files "summary" "/config/jira_summary.j2" -}}
+    {{- end -}}
+    {{- if .Values.templates.jiraDescription -}}
+    {{- $_ := set $config.task_management.template_files "description" "/config/jira_description.j2" -}}
+    {{- end -}}
     {{- end -}}
     {{- end -}}
     {{- toYaml $config | nindent 4 }}
@@ -31,4 +42,12 @@ data:
   {{- if .Values.templates.status_icons }}
   status_icons.j2: |
     {{- .Values.templates.status_icons | nindent 4 }}
+  {{- end }}
+  {{- if .Values.templates.jiraSummary }}
+  jira_summary.j2: |
+    {{- .Values.templates.jiraSummary | nindent 4 }}
+  {{- end }}
+  {{- if .Values.templates.jiraDescription }}
+  jira_description.j2: |
+    {{- .Values.templates.jiraDescription | nindent 4 }}
   {{- end }}

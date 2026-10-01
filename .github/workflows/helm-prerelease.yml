@@ -1,0 +1,45 @@
+name: pre-release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  oci-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Resolve OCI chart version
+        id: chart
+        run: |
+          version=$(grep '^version:' charts/impulse/Chart.yaml | awk '{print $2}' | tr -d '"')
+          base="${version%%-*}"
+          oci_version="${base}-prerelease"
+          echo "chart_version=$version" >> "$GITHUB_OUTPUT"
+          echo "oci_version=$oci_version" >> "$GITHUB_OUTPUT"
+          echo "Chart.yaml version: $version"
+          echo "OCI publish version: $oci_version (re-runs overwrite this tag)"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Package and push chart
+        env:
+          OCI_REGISTRY: oci://ghcr.io/${{ github.repository_owner }}/helm-charts
+          OCI_VERSION: ${{ steps.chart.outputs.oci_version }}
+        run: |
+          tgz=$(helm package charts/impulse --destination /tmp --version "$OCI_VERSION" | awk '{print $NF}')
+          helm push "$tgz" "$OCI_REGISTRY"
