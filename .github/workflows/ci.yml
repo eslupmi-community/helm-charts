@@ -1,0 +1,56 @@
+name: ci
+
+on:
+  pull_request:
+    paths:
+      - charts/**
+      - .github/workflows/ci.yml
+
+jobs:
+  chart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+
+      - name: Lint chart
+        run: helm lint charts/impulse
+
+      - name: Template default values
+        run: helm template ci-test charts/impulse
+
+      - name: Template example values
+        run: |
+          helm template ci-test charts/impulse -f charts/impulse/values-slack.yaml
+          helm template ci-test charts/impulse -f charts/impulse/values-mattermost.yaml
+          helm template ci-test charts/impulse -f charts/impulse/values-telegram.yaml
+
+      - name: Template with envFrom
+        run: |
+          helm template ci-test charts/impulse \
+            --set 'envFrom[0].configMapRef.name=extra-cm' \
+            --set 'envFrom[1].secretRef.name=extra-secret'
+
+      - name: Template with custom Jinja templates
+        run: |
+          out=$(helm template ci-test charts/impulse \
+            --set impulseConfig.messenger.template_files.header=/legacy/header.j2 \
+            --set templates.header='custom-header' \
+            --set templates.body='custom-body' \
+            --set templates.status_icons='custom-icons' \
+            --set templates.summary='custom-summary' \
+            --set templates.description='custom-description' \
+            --set templates.thread.chain_step_user='custom-chain-user' \
+            --set templates.thread.incident_notifications_assignment='custom-assignment')
+          echo "$out" | grep -q 'custom-header'
+          echo "$out" | grep -q 'custom-chain-user'
+          echo "$out" | grep -q 'mountPath: /app/templates/slack_header.j2'
+          echo "$out" | grep -q 'mountPath: /app/thread_templates/slack_chain_step_user.j2'
+          echo "$out" | grep -q 'mountPath: /app/templates/jira_summary.j2'
+          if echo "$out" | grep -q 'template_files'; then
+            echo "rendered manifest still contains template_files" >&2
+            exit 1
+          fi
