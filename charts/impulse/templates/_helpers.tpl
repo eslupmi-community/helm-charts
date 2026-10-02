@@ -223,6 +223,80 @@ jira:
 {{- if $existing.secretName -}}true{{- else if get (get (.Values.secrets.inline | default dict) "jira" | default dict) "apiToken" -}}true{{- end -}}
 {{- end -}}
 
+# Custom Jinja templates overlaid onto IMPulse default paths.
+# Incident / task: /app/templates/<type>_<name>.j2
+# Thread: /app/thread_templates/<messenger.type>_<name>.j2
+# https://impulse.bot/docs/stable/concepts/templates/
+{{- define "impulse.threadTemplateNames" -}}
+chain_step_group
+chain_step_user
+chain_step_user_group
+chain_step_webhook
+incident_notifications_assignment
+incident_notifications_freeze
+incident_notifications_new_firing
+incident_notifications_partial_resolved
+incident_notifications_status_update
+incident_notifications_unfreeze
+{{- end -}}
+
+{{- define "impulse.customTemplates" -}}
+{{- $templates := .Values.templates | default dict -}}
+{{- $messengerType := "" -}}
+{{- if and .Values.impulseConfig .Values.impulseConfig.messenger -}}
+{{- $messengerType = .Values.impulseConfig.messenger.type | default "" -}}
+{{- end -}}
+{{- $taskType := "jira" -}}
+{{- if and .Values.impulseConfig .Values.impulseConfig.task_management .Values.impulseConfig.task_management.type -}}
+{{- $taskType = .Values.impulseConfig.task_management.type -}}
+{{- end -}}
+{{- $out := dict -}}
+{{- range $key := list "header" "body" "status_icons" -}}
+{{- if index $templates $key -}}
+{{- $filename := printf "%s_%s.j2" $messengerType $key -}}
+{{- $_ := set $out $filename (dict "mountPath" (printf "/app/templates/%s" $filename) "kind" "incident" "key" $key) -}}
+{{- end -}}
+{{- end -}}
+{{- if or (index $templates "summary") (index $templates "jiraSummary") -}}
+{{- $filename := printf "%s_summary.j2" $taskType -}}
+{{- $_ := set $out $filename (dict "mountPath" (printf "/app/templates/%s" $filename) "kind" "task" "key" "summary") -}}
+{{- end -}}
+{{- if or (index $templates "description") (index $templates "jiraDescription") -}}
+{{- $filename := printf "%s_description.j2" $taskType -}}
+{{- $_ := set $out $filename (dict "mountPath" (printf "/app/templates/%s" $filename) "kind" "task" "key" "description") -}}
+{{- end -}}
+{{- $thread := index $templates "thread" | default dict -}}
+{{- if kindIs "map" $thread -}}
+{{- range include "impulse.threadTemplateNames" . | splitList "\n" -}}
+{{- $key := . -}}
+{{- if and $key (index $thread $key) -}}
+{{- $filename := printf "%s_%s.j2" $messengerType $key -}}
+{{- $_ := set $out $filename (dict "mountPath" (printf "/app/thread_templates/%s" $filename) "kind" "thread" "key" $key) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- $out | toYaml -}}
+{{- end -}}
+
+{{- define "impulse.templateContent" -}}
+{{- $templates := .root.Values.templates | default dict -}}
+{{- if eq .spec.kind "incident" -}}
+{{- index $templates .spec.key | default "" -}}
+{{- else if eq .spec.kind "thread" -}}
+{{- index (.root.Values.templates.thread | default dict) .spec.key | default "" -}}
+{{- else if eq .spec.kind "task" -}}
+{{- $content := index $templates .spec.key | default "" -}}
+{{- if not $content -}}
+{{- if eq .spec.key "summary" -}}
+{{- $content = index $templates "jiraSummary" | default "" -}}
+{{- else if eq .spec.key "description" -}}
+{{- $content = index $templates "jiraDescription" | default "" -}}
+{{- end -}}
+{{- end -}}
+{{- $content -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "impulse.reservedEnvNames" -}}
 LISTEN_HOST
 LISTEN_PORT

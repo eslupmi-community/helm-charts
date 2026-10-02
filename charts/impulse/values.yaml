@@ -205,13 +205,35 @@ impulseConfig:
 
   webhooks: {}
 
-# Optional Jinja templates mounted into the config ConfigMap
+# Optional Jinja templates overlaid onto IMPulse default paths.
+# Incident and task files: /app/templates/<type>_<name>.j2
+# Thread files: /app/thread_templates/<messenger.type>_<name>.j2
+# Do not set messenger.template_files or task_management.template_files
+# (removed in this chart; IMPulse drops optional paths in v4.0.0).
+# https://impulse.bot/docs/stable/concepts/templates/
 templates:
+  # Incident messages → ./templates/<messenger.type>_{header,body,status_icons}.j2
   header: ""
   body: ""
   status_icons: ""
-  jiraSummary: ""
-  jiraDescription: ""
+
+  # Task management → ./templates/<task_management.type>_{summary,description}.j2
+  summary: ""
+  description: ""
+  # Deprecated aliases (still accepted): jiraSummary, jiraDescription
+
+  # Thread messages → ./thread_templates/<messenger.type>_<name>.j2
+  thread:
+    chain_step_group: ""
+    chain_step_user: ""
+    chain_step_user_group: ""
+    chain_step_webhook: ""
+    incident_notifications_assignment: ""
+    incident_notifications_freeze: ""
+    incident_notifications_new_firing: ""
+    incident_notifications_partial_resolved: ""
+    incident_notifications_status_update: ""
+    incident_notifications_unfreeze: ""
 
 # Secret management
 secrets:

@@ -12,10 +12,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `envFrom` for loading environment variables from ConfigMaps and Secrets.
 - Values and templates aligned with [documented environment variables](https://impulse.bot/docs/stable/envs/) and [impulse.yml options](https://impulse.bot/docs/stable/config_file/) (`general`, `inhibit_rules`, full `incident` defaults including `closed` TTL, messenger `groups`, UI `filters`, and `task_management` for Jira).
 - `secrets.inline` / `secrets.existing` for auth (`AUTH_CLIENT_SECRET`) and Jira (`JIRA_API_TOKEN`), alongside existing messenger and Google secret options.
-- Optional Jira Jinja templates via `templates.jiraSummary` and `templates.jiraDescription` (mounted into the config ConfigMap).
+- Optional Jinja templates via `templates` for incident messages (`header`, `body`, `status_icons`), task management (`summary`, `description`), and all [thread messages](https://impulse.bot/docs/stable/concepts/templates/#thread-messages). Custom files are mounted over IMPulse defaults at `/app/templates` and `/app/thread_templates`.
 - `LISTEN_PORT` is set from `service.port`; `LISTEN_HOST` defaults to `0.0.0.0`.
 - OCI chart publishing to `oci://ghcr.io/eslupmi-community/helm-charts` on release (GHCR login in the release workflow; alongside GitHub Releases / Helm repo index).
-- Pull-request CI: `helm lint`, default and messenger example value templates, and an `envFrom` template smoke test.
+- Pull-request CI: `helm lint`, default and messenger example value templates, `envFrom`, and custom Jinja template smoke tests.
 
 ### Changed
 
@@ -24,7 +24,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Literal `env` entries are rendered in stable alphabetical order; keys reserved for chart-managed listen, messenger, auth, and Jira variables are skipped when also set in `env`.
 - ServiceMonitor scrapes the Service port named `http` (not the numeric port value).
 - Google service account JSON is mounted at `env.GOOGLE_SERVICE_ACCOUNT_FILE` when inline or existing Google secrets are configured.
-- ConfigMap rendering deep-copies `impulseConfig` before merging custom template paths (does not mutate release values during render).
+- Custom templates no longer inject deprecated `messenger.template_files` / `task_management.template_files` into `impulse.yml`; those keys are stripped if present in `impulseConfig`.
+- ConfigMap rendering deep-copies `impulseConfig` before render (does not mutate release values).
 - Ingress annotations are merged without mutating release values during template render.
 - Ingress template uses `networking.k8s.io/v1` only; `pathType` defaults to `Prefix` when omitted; minimum Kubernetes version is 1.19 (`Chart.yaml` `kubeVersion`).
 - Deployment omits `replicas` when autoscaling is enabled so the HPA owns replica count.
@@ -43,6 +44,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - If you override `service.port`, the container now listens on that port as well (previously it stayed at 5000).
 - Clusters below Kubernetes 1.19 are no longer supported by this chart.
 - With `autoscaling.enabled: true`, set scale bounds via `autoscaling.minReplicas` / `maxReplicas`, not `replicaCount`.
+- Remove `impulseConfig.messenger.template_files` and `impulseConfig.task_management.template_files`; set template contents under `templates` instead.
+- Rename `templates.jiraSummary` / `templates.jiraDescription` to `templates.summary` / `templates.description` (old keys still work).
 
 ## [v1.0.15]
 

@@ -92,6 +92,12 @@ spec:
               mountPath: {{ .Values.env.DATA_PATH }}
             - name: config
               mountPath: {{ .Values.env.CONFIG_PATH }}
+            {{- range $filename, $spec := include "impulse.customTemplates" . | fromYaml }}
+            - name: config
+              mountPath: {{ $spec.mountPath }}
+              subPath: {{ $filename }}
+              readOnly: true
+            {{- end }}
             {{- if include "impulse.googleServiceAccountEnabled" . }}
             - name: google-service-account
               mountPath: {{ .Values.env.GOOGLE_SERVICE_ACCOUNT_FILE }}
