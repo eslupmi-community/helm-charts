@@ -41,7 +41,20 @@ jobs:
         uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: charts
-          oci_registry_url: oci://ghcr.io/${{ github.repository_owner }}/helm-charts
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Push chart to GHCR
+        env:
+          OCI_REGISTRY: oci://ghcr.io/${{ github.repository_owner }}/helm-charts
+        run: |
+          shopt -s nullglob
+          packages=(.cr-release-packages/*.tgz)
+          if (( ${#packages[@]} == 0 )); then
+            echo "No new chart packages were released; skipping OCI push."
+            exit 0
+          fi
+          for tgz in "${packages[@]}"; do
+            echo "Pushing ${tgz} to ${OCI_REGISTRY}"
+            helm push "$tgz" "$OCI_REGISTRY"
+          done
