@@ -4,6 +4,18 @@ All notable changes to this chart are documented here. Version numbers match [ch
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v1.1.2]
+
+### Changed
+
+- Bump IMPulse to [v3.8.0](https://github.com/eslupmi/impulse/releases/tag/v3.8.0) (`appVersion` and Artifact Hub image annotation).
+
+## [v1.1.1]
+
+### Fixed
+
+- OCI chart publishing: the release workflow now pushes packaged charts to `oci://ghcr.io/eslupmi-community/helm-charts` with `helm push` in a separate step (instead of the `oci_registry_url` input of `chart-releaser-action`), and skips the push when no new chart was released.
+
 ## [v1.1.0]
 
 ### Added
